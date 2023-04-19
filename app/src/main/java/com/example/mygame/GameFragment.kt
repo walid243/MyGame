@@ -14,6 +14,7 @@ import com.example.mygame.model.GameView
 
 class GameFragment : Fragment() {
     lateinit var gameView: GameView
+    lateinit var fireButton: Button
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -24,7 +25,7 @@ class GameFragment : Fragment() {
         gameView = GameView(requireContext(), size)
         val game = FrameLayout(requireContext())
         val gameButtons = RelativeLayout(requireContext())
-        val fireButton = Button(requireContext());
+        fireButton = Button(requireContext());
         fireButton.text = "Fire"
         fireButton.setBackgroundColor(Color.RED)
         val b1 = RelativeLayout.LayoutParams(
@@ -44,13 +45,15 @@ class GameFragment : Fragment() {
         game.addView(gameButtons)
         return game
     }
-//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        super.onViewCreated(view, savedInstanceState)
-//        fireButton.setOnClickListener {
-//            gameView.shot()
-//        }
-//    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        fireButton.setOnClickListener {
+            gameView.shot()
+        }
+    }
+    fun createButton(){
 
+    }
 
 
 }
