@@ -13,19 +13,23 @@ class Player(context: Context, screenX: Int, screenY: Int) {
     val start = 0f
     val end = screenX - width
     var positionX = screenX / 2f
-    val positionY = (screenY - (3 *height))
+    val positionY = (screenY - (3 * height))
     var speed = 5
 
-    init{
-        bitmap = Bitmap.createScaledBitmap(bitmap, width.toInt(), height.toInt(),false)
+    init {
+        bitmap = Bitmap.createScaledBitmap(bitmap, width.toInt(), height.toInt(), false)
     }
 
-    fun updatePlayer(){
-        if (positionX >= end){
-            speed = -speed
-        } else if (positionX <= start) {
-            speed = abs(speed)
+    fun updatePlayer() {
+        if (speed != 0) {
+            if (positionX < end) {
+                positionX += speed
+            } else if (positionX > start) {
+                positionX -= speed
+            }
+            else {
+                speed = 0
+            }
         }
-        positionX += speed
     }
 }

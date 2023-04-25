@@ -17,10 +17,10 @@ class GameView(context: Context, private val size: Point) : SurfaceView(context)
     val paint: Paint = Paint()
     val player = Player(context, size.x, size.y)
     val enemy = Enemy(context, size.x, size.y)
-    lateinit var bullet: Bullet
+    val bullets = mutableListOf<Bullet>()
     var playing = true
     var score = 0
-    var shotAction = false
+
 
     init {
         startGame()
@@ -48,13 +48,16 @@ class GameView(context: Context, private val size: Point) : SurfaceView(context)
 //ENEMY
             canvas.drawBitmap(enemy.bitmap, enemy.positionX, enemy.positionY, paint)
             canvas.drawText("Score: $score", (size.x - paint.descent()), 75f, paint)
-            if (shotAction) {
-                canvas.drawBitmap(bullet.bitmap, bullet.positionX, bullet.positionY, paint)
+            for (bullet in bullets) {
+                if (bullet.isActive) {
+                    canvas.drawBitmap(bullet.bitmap, bullet.positionX, bullet.positionY, paint)
+                    println("---------> ${bullet.positionY} <--------------")
+
+                }
             }
             paint.color = Color.YELLOW
             paint.textSize = 60f
             paint.textAlign = Paint.Align.RIGHT
-            println()
             holder.unlockCanvasAndPost(canvas)
         }
     }
@@ -62,17 +65,26 @@ class GameView(context: Context, private val size: Point) : SurfaceView(context)
     fun update() {
         enemy.updateEnemy()
         player.updatePlayer()
-        if (shotAction) {
-            bullet.updateBullet()
-            if (bullet.positionY <= 0) {
-                shotAction = false
-            }
-            if (enemy.isCollision(bullet)) {
-                score++
-                shotAction = false
+        if (bullets.isNotEmpty()) {
+            var bullet: Bullet
+            for (i in bullets.size - 1 downTo  0) {
+                bullet = bullets[i]
+                if (bullet.isActive) {
+                    bullet.updateBullet()
+                    if (bullet.positionY <= 0) {
+                        bullet.setIsActive(false)
+                    }
+                    if (enemy.isCollision(bullet)) {
+                        score++
+                        bullet.setBitmap(bullet.setBullet(bullet.bullets["impact"]!!))
+                        bullet.setIsActive(false)
+                    }
+
+                } else {
+                    bullets.removeAt(i)
+                }
             }
         }
-
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -81,18 +93,28 @@ class GameView(context: Context, private val size: Point) : SurfaceView(context)
                 // Aquí capturem els events i el codi que volem executar per cadascún
                 MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
                     // Modifiquem la velocitat del jugador perquè es mogui?
-                    if (event.x > player.positionX) {
-                        // ...
+                    if (event.x == player.positionX - (width/2)) {
+                        player.speed = 0
+                    } else if (event.x < player.positionX){
+                        player.speed = -5
                     }
+                    else {
+                        player.speed = 5
+                    }
+                }
+                MotionEvent.ACTION_UP -> {
+                    player.speed = 0
                 }
 
             }
         }
         return true
     }
-    fun shot(){
-        bullet = Bullet(context, size.x, size.y, player.positionX, player.positionY)
-        shotAction = true
+
+    fun shot() {
+        val bullet = Bullet(context, size.x, size.y, player.positionX, player.positionY)
+        bullet.setIsActive()
+        bullets.add(0, bullet)
     }
 
 
