@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import com.example.mygame.R
-import kotlin.math.abs
 
 class Player(context: Context, screenX: Int, screenY: Int) {
     var bitmap: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.megaman)
@@ -22,14 +21,13 @@ class Player(context: Context, screenX: Int, screenY: Int) {
 
     fun updatePlayer() {
         if (speed != 0) {
-            if (positionX < end) {
+            if (isValidMove()){
                 positionX += speed
-            } else if (positionX > start) {
-                positionX -= speed
-            }
-            else {
-                speed = 0
             }
         }
+    }
+
+    fun isValidMove(): Boolean {
+        return (positionX in start..end) || (positionX >= end && speed < 0 ) || (positionX <= start && speed > 0)
     }
 }

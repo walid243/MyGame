@@ -10,14 +10,14 @@ class Bullet(private val context: Context, screenX: Int, screenY: Int, val posit
     val bullets = mapOf(Pair("normal",R.drawable.bullet_launch),
         Pair("impact",R.drawable.bullet_impact)
     )
-    var bitmap: Bitmap
+    lateinit var bitmap: Bitmap
     val width = screenX / 10f
     val height = screenY / 10f
     var speed = 15
     var isActive = false
 
     init{
-        bitmap = setBitmap(setBullet(bullets["normal"]!!))
+         setBitmap(setBullet(bullets["normal"]!!))
     }
     fun updateBullet(): Boolean {
         positionY -= speed
@@ -31,8 +31,9 @@ class Bullet(private val context: Context, screenX: Int, screenY: Int, val posit
     fun setBullet(image:Int): Bitmap {
         return BitmapFactory.decodeResource(context.resources, image)
     }
-    fun setBitmap(bitImage:Bitmap): Bitmap {
-        return Bitmap.createScaledBitmap(bitImage, width.toInt(), height.toInt(),false)
+    @JvmName("setBitmap1")
+    fun setBitmap(bitImage:Bitmap) {
+        bitmap = Bitmap.createScaledBitmap(bitImage, width.toInt(), height.toInt(),false)
 
     }
 

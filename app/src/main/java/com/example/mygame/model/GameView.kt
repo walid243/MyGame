@@ -49,11 +49,9 @@ class GameView(context: Context, private val size: Point) : SurfaceView(context)
             canvas.drawBitmap(enemy.bitmap, enemy.positionX, enemy.positionY, paint)
             canvas.drawText("Score: $score", (size.x - paint.descent()), 75f, paint)
             for (bullet in bullets) {
-                if (bullet.isActive) {
+//                if (bullet.isActive) {
                     canvas.drawBitmap(bullet.bitmap, bullet.positionX, bullet.positionY, paint)
-                    println("---------> ${bullet.positionY} <--------------")
-
-                }
+//                }
             }
             paint.color = Color.YELLOW
             paint.textSize = 60f
@@ -93,13 +91,13 @@ class GameView(context: Context, private val size: Point) : SurfaceView(context)
                 // Aquí capturem els events i el codi que volem executar per cadascún
                 MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
                     // Modifiquem la velocitat del jugador perquè es mogui?
-                    if (event.x == player.positionX - (width/2)) {
-                        player.speed = 0
+                    if (event.x > player.positionX) {
+                        player.speed = 5
                     } else if (event.x < player.positionX){
                         player.speed = -5
                     }
                     else {
-                        player.speed = 5
+                        player.speed = 0
                     }
                 }
                 MotionEvent.ACTION_UP -> {
