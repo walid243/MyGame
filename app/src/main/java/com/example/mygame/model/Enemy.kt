@@ -14,8 +14,11 @@ class Enemy(context: Context, screenX: Int, screenY: Int) {
     val start = 0f
     val end = screenX - width
     var positionX = screenX / 2f
-    val positionY = 0f
+    val positionY = 80f
     var speed = 4
+    private val totalLP = 1000f
+    var lp = totalLP
+    val lifeBar = LifeBar(totalLP, this)
 
     init{
         bitmap = Bitmap.createScaledBitmap(bitmap, width.toInt(), height.toInt(),false)
@@ -27,11 +30,19 @@ class Enemy(context: Context, screenX: Int, screenY: Int) {
             speed = abs(speed)
         }
         positionX += speed
+        lifeBar.updateLifeBar(this)
     }
     fun getCollisionShape(): RectF {
         return RectF(positionX, positionY, positionX + width, positionY + height)
     }
     fun isCollision(bullet: Bullet): Boolean {
         return RectF.intersects(getCollisionShape(), bullet.getCollisionShape())
+    }
+    fun setLifePoint(value: Float){
+        if (lp > 0f){
+            lp -= value
+        } else {
+            lp = 0f
+        }
     }
 }

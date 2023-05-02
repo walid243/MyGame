@@ -5,6 +5,10 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.RectF
 import com.example.mygame.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class Bullet(private val context: Context, screenX: Int, screenY: Int, val positionX: Float, var positionY: Float) {
     val bullets = mapOf(Pair("normal",R.drawable.bullet_launch),
@@ -14,7 +18,9 @@ class Bullet(private val context: Context, screenX: Int, screenY: Int, val posit
     val width = screenX / 10f
     val height = screenY / 10f
     var speed = 15
+    val damage = 100f
     var isActive = false
+    var canCollision = true
 
     init{
          setBitmap(setBullet(bullets["normal"]!!))
@@ -39,6 +45,19 @@ class Bullet(private val context: Context, screenX: Int, screenY: Int, val posit
 
     fun setIsActive(value: Boolean = !isActive){
         isActive = value
+    }
+
+    fun setDelayCollision(){
+        CoroutineScope(Dispatchers.Default).launch {
+            setBitmap(setBullet(bullets["impact"]!!))
+            delay(400)
+            setIsActive(false)
+        }
+    }
+
+    @JvmName("setCanCollision1")
+    fun setCanCollision(value: Boolean = !canCollision) {
+        canCollision = value
     }
 
 }

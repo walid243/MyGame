@@ -14,10 +14,10 @@ import kotlinx.coroutines.launch
 
 class GameView(context: Context, private val size: Point) : SurfaceView(context) {
     var canvas: Canvas = Canvas()
-    val paint: Paint = Paint()
+    private val paint: Paint = Paint()
     val player = Player(context, size.x, size.y)
     val enemy = Enemy(context, size.x, size.y)
-    val bullets = mutableListOf<Bullet>()
+    private val bullets = mutableListOf<Bullet>()
     var playing = true
     var score = 0
 
@@ -31,7 +31,7 @@ class GameView(context: Context, private val size: Point) : SurfaceView(context)
             while (playing) {
                 draw()
                 update()
-                delay(10)
+                delay(5)
             }
         }
     }
@@ -47,11 +47,12 @@ class GameView(context: Context, private val size: Point) : SurfaceView(context)
             )
 //ENEMY
             canvas.drawBitmap(enemy.bitmap, enemy.positionX, enemy.positionY, paint)
+            canvas.drawRect(enemy.lifeBar.size, enemy.lifeBar.greenPaint)
             canvas.drawText("Score: $score", (size.x - paint.descent()), 75f, paint)
             for (bullet in bullets) {
-//                if (bullet.isActive) {
+                if (bullet.isActive) {
                     canvas.drawBitmap(bullet.bitmap, bullet.positionX, bullet.positionY, paint)
-//                }
+                }
             }
             paint.color = Color.YELLOW
             paint.textSize = 60f
@@ -73,9 +74,12 @@ class GameView(context: Context, private val size: Point) : SurfaceView(context)
                         bullet.setIsActive(false)
                     }
                     if (enemy.isCollision(bullet)) {
-                        score++
-                        bullet.setBitmap(bullet.setBullet(bullet.bullets["impact"]!!))
-                        bullet.setIsActive(false)
+                        if (bullet.canCollision) {
+                            score++
+                            enemy.setLifePoint(bullet.damage)
+                            bullet.setCanCollision(false)
+                        }
+                        bullet.setDelayCollision()
                     }
 
                 } else {
