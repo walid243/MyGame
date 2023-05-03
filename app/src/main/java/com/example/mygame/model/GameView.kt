@@ -7,34 +7,39 @@ import android.graphics.Paint
 import android.graphics.Point
 import android.view.MotionEvent
 import android.view.SurfaceView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class GameView(context: Context, private val size: Point) : SurfaceView(context) {
     var canvas: Canvas = Canvas()
     private val paint: Paint = Paint()
-    val player = Player(context, size.x, size.y)
-    val enemy = Enemy(context, size.x, size.y)
-    private val bullets = mutableListOf<Bullet>()
+    private val player = Player(context, size.x, size.y)
+    private val enemy = Enemy(context, size.x, size.y)
+    private var bullets = player.bullets
     var playing = true
     var score = 0
 
 
-    init {
-        startGame()
-    }
-
-    fun startGame() {
-        CoroutineScope(Dispatchers.Main).launch {
+    fun startGame(): Deferred<Boolean> {
+        return CoroutineScope(Dispatchers.Main).async {
             while (playing) {
                 draw()
                 update()
+                if(isGameOver()){
+                    playing = false
+                }
                 delay(5)
             }
+            true
         }
     }
+
+    private fun isGameOver(): Boolean {
+        println(enemy.getIsActive())
+        println(player.getIsActive())
+        println("isGameOver: ${!enemy.getIsActive() || !player.getIsActive()}")
+        return !enemy.getIsActive() || !player.getIsActive()
+    }
+
 
     fun draw() {
         if (holder.surface.isValid) {
@@ -47,11 +52,14 @@ class GameView(context: Context, private val size: Point) : SurfaceView(context)
             )
 //ENEMY
             canvas.drawBitmap(enemy.bitmap, enemy.positionX, enemy.positionY, paint)
-            canvas.drawRect(enemy.lifeBar.size, enemy.lifeBar.greenPaint)
+            canvas.drawRect(enemy.lifeBar.lifeBarSize, enemy.lifeBar.greenPaint)
+            canvas.drawRect(enemy.lifeBar.deathBarSize, enemy.lifeBar.redPaint)
+            canvas.drawRect(enemy.getCollisionShape(), paint)
             canvas.drawText("Score: $score", (size.x - paint.descent()), 75f, paint)
             for (bullet in bullets) {
                 if (bullet.isActive) {
                     canvas.drawBitmap(bullet.bitmap, bullet.positionX, bullet.positionY, paint)
+                    canvas.drawRect(bullet.getCollisionShape(), paint)
                 }
             }
             paint.color = Color.YELLOW
@@ -62,8 +70,9 @@ class GameView(context: Context, private val size: Point) : SurfaceView(context)
     }
 
     fun update() {
-        enemy.updateEnemy()
-        player.updatePlayer()
+        enemy.update()
+        player.update()
+        bullets = player.bullets
         if (bullets.isNotEmpty()) {
             var bullet: Bullet
             for (i in bullets.size - 1 downTo  0) {

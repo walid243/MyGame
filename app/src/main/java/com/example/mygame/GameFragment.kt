@@ -4,7 +4,6 @@ import android.graphics.Color
 import android.graphics.Point
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -12,6 +11,10 @@ import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import androidx.fragment.app.Fragment
 import com.example.mygame.model.GameView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class GameFragment : Fragment() {
     lateinit var gameView: GameView
@@ -47,13 +50,17 @@ class GameFragment : Fragment() {
         return game
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        CoroutineScope(Dispatchers.Default).launch {
+            gameView.startGame().await()
+            withContext(Dispatchers.Main) {
+                val intent = GameOverFragment(gameView.score)
+             parentFragmentManager.beginTransaction().replace(R.id.fragmentContainer, intent).commit()
+            }
+        }
         super.onViewCreated(view, savedInstanceState)
         fireButton.setOnClickListener {
             gameView.shot()
         }
-    }
-    fun createButton(){
-
     }
 
 
