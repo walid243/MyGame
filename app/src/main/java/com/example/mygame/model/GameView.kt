@@ -5,11 +5,14 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Point
+import android.media.MediaPlayer
 import android.view.MotionEvent
 import android.view.SurfaceView
+import com.example.mygame.R
 import kotlinx.coroutines.*
 
 class GameView(context: Context, private val size: Point) : SurfaceView(context) {
+    var mediaPlayer = MediaPlayer.create(context, R.raw.tunak_tunak_remix)
     var canvas: Canvas = Canvas()
     private val paint: Paint = Paint()
     private val player = Player(context, size.x, size.y)
@@ -18,9 +21,20 @@ class GameView(context: Context, private val size: Point) : SurfaceView(context)
     var playing = true
     var score = 0
 
+    fun pause() {
+        mediaPlayer.pause()
+    }
+
+    fun resume() {
+        mediaPlayer.start()
+    }
 
     fun startGame(): Deferred<Boolean> {
         return CoroutineScope(Dispatchers.Main).async {
+            mediaPlayer.start()
+            mediaPlayer.setOnCompletionListener {
+                mediaPlayer.start()
+            }
             while (playing) {
                 draw()
                 update()

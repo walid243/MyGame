@@ -2,6 +2,7 @@ package com.example.mygame
 
 import android.graphics.Color
 import android.graphics.Point
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -61,6 +62,16 @@ class GameFragment : Fragment() {
         fireButton.setOnClickListener {
             gameView.shot()
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        gameView.pause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        gameView.resume()
     }
 
 

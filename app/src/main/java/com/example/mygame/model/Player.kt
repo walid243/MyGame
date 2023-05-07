@@ -3,10 +3,12 @@ package com.example.mygame.model
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.MediaPlayer
 import com.example.mygame.R
 
 class Player(context: Context,   screenX: Int, screenY: Int): GameObject(context,screenX, screenY) {
     override var bitmap: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.megaman)
+    var mediaPlayer = MediaPlayer.create(context, R.raw.hellomotherfucker)
     val bullets = mutableListOf<Bullet>()
     override val width = screenX / 10f
     override val height = screenY / 10f
@@ -19,6 +21,7 @@ class Player(context: Context,   screenX: Int, screenY: Int): GameObject(context
 
     init {
         bitmap = Bitmap.createScaledBitmap(bitmap, width.toInt(), height.toInt(), false)
+        mediaPlayer.start()
     }
 
     fun shot(): Boolean {
