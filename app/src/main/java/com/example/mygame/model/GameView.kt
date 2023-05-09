@@ -9,15 +9,15 @@ import android.media.MediaPlayer
 import android.view.MotionEvent
 import android.view.SurfaceView
 import com.example.mygame.R
+import com.example.mygame.objects.GameResources
 import kotlinx.coroutines.*
 
 class GameView(context: Context, private val size: Point) : SurfaceView(context) {
     var mediaPlayer = MediaPlayer.create(context, R.raw.tunak_tunak_remix)
     var canvas: Canvas = Canvas()
     private val paint: Paint = Paint()
-    private val player = Player(context, size.x, size.y)
-    private val enemy = Enemy(context, size.x, size.y)
-    private var bullets = player.bullets
+    private val player = Player(context, size.x, size.y, GameResources.playerSkins["init"]!!)
+    private val enemy = Enemy(context, size.x, size.y, GameResources.enemySkins["init"]!!)
     var playing = true
     var score = 0
 
@@ -50,8 +50,8 @@ class GameView(context: Context, private val size: Point) : SurfaceView(context)
     private fun isGameOver(): Boolean {
         println(enemy.getIsActive())
         println(player.getIsActive())
-        println("isGameOver: ${!enemy.getIsActive() || !player.getIsActive()}")
-        return !enemy.getIsActive() || !player.getIsActive()
+        println("isGameOver: ${!player.getIsActive()}")
+        return !player.getIsActive()
     }
 
 
@@ -68,12 +68,12 @@ class GameView(context: Context, private val size: Point) : SurfaceView(context)
             canvas.drawBitmap(enemy.bitmap, enemy.positionX, enemy.positionY, paint)
             canvas.drawRect(enemy.lifeBar.lifeBarSize, enemy.lifeBar.greenPaint)
             canvas.drawRect(enemy.lifeBar.deathBarSize, enemy.lifeBar.redPaint)
-            canvas.drawRect(enemy.getCollisionShape(), paint)
             canvas.drawText("Score: $score", (size.x - paint.descent()), 75f, paint)
+            val bullets = player.bullets
             for (bullet in bullets) {
                 if (bullet.isActive) {
                     canvas.drawBitmap(bullet.bitmap, bullet.positionX, bullet.positionY, paint)
-                    canvas.drawRect(bullet.getCollisionShape(), paint)
+
                 }
             }
             paint.color = Color.YELLOW
@@ -83,26 +83,37 @@ class GameView(context: Context, private val size: Point) : SurfaceView(context)
         }
     }
 
-    fun update() {
+    private fun update() {
         enemy.update()
         player.update()
-        bullets = player.bullets
+        updateBullets(player, enemy)
+        updateBullets(enemy, player)
+
+    }
+
+    private fun updateBullets(owner: Character, enemy: Character) {
+        val bullets = owner.bullets
         if (bullets.isNotEmpty()) {
             var bullet: Bullet
             for (i in bullets.size - 1 downTo  0) {
                 bullet = bullets[i]
                 if (bullet.isActive) {
-                    bullet.updateBullet()
+                    bullet.update()
                     if (bullet.positionY <= 0) {
                         bullet.setIsActive(false)
                     }
-                    if (enemy.isCollision(bullet)) {
+                    if (bullet.isCollision(enemy.getCollisionShape())) {
                         if (bullet.canCollision) {
                             score++
                             enemy.setLifePoint(bullet.damage)
                             bullet.setCanCollision(false)
                         }
-                        bullet.setDelayCollision()
+                        if (owner is Player) {
+                        bullet.setDelayCollision(GameResources.bulletSkins["playerImpactBullet"]!!)
+                        } else {
+                            bullet.setDelayCollision(GameResources.bulletSkins["enemyImpactBullet"]!!)
+                        }
+
                     }
 
                 } else {
@@ -137,9 +148,7 @@ class GameView(context: Context, private val size: Point) : SurfaceView(context)
     }
 
     fun shot() {
-        val bullet = Bullet(context, size.x, size.y, player.positionX, player.positionY)
-        bullet.setIsActive()
-        bullets.add(0, bullet)
+        player.shot()
     }
 
 
