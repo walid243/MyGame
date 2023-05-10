@@ -1,21 +1,16 @@
 package com.example.mygame.model
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.RectF
-import android.media.MediaPlayer
-import com.example.mygame.objects.GameResources
 
 abstract class Character(context: Context, screenX: Int, screenY: Int, imageResource: Int) :
     GameObject(
         context, screenX,
         screenY,
-        imageResource
+        imageResource,
     ) {
-    abstract val mediaPlayer: MediaPlayer
     abstract val totalLP: Float
-    var lp: Float = totalLP
     abstract val lifeBar: LifeBar
+    abstract var lp : Float
     val bullets: MutableList<Bullet> = mutableListOf()
     fun setLifePoint(value: Float) {
         if (lp > 0f) {
@@ -26,4 +21,5 @@ abstract class Character(context: Context, screenX: Int, screenY: Int, imageReso
     }
 
     abstract fun shot():Boolean
+
 }

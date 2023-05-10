@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.RectF
+import android.media.SoundPool
 
 abstract class GameObject(
     open val context: Context,
@@ -11,15 +12,16 @@ abstract class GameObject(
     val screenY: Int,
     imageResource: Int
 ) {
-    var bitmap: Bitmap = BitmapFactory.decodeResource(context.resources, imageResource)
+    abstract var bitmap: Bitmap
     abstract val width: Float
     abstract val height: Float
-    val start: Float = 0f
-    val end: Float = screenX - width
+    abstract val start: Float
+    abstract val end: Float
     abstract var positionX: Float
     abstract val positionY: Float
     abstract var speed: Int
     abstract var isActive: Boolean
+    val soundPool: SoundPool = SoundPool.Builder().setMaxStreams(5).build()
 
     abstract fun update()
     fun getCollisionShape(): RectF {
@@ -49,6 +51,17 @@ abstract class GameObject(
 
     fun updateBitImage(newImageResource: Int): Bitmap {
         return BitmapFactory.decodeResource(context.resources, newImageResource)
+    }
+
+    fun getSound(sound: Int): Int {
+        return soundPool.load(context, sound, 1)
+    }
+
+    fun playSound(sound: Int) {
+        soundPool.setOnLoadCompleteListener { _, _, _ ->
+            soundPool.play(sound, 1f, 1f, 1, 0, 1f)
+            soundPool.pause(sound)
+        }
     }
 
 }

@@ -2,7 +2,6 @@ package com.example.mygame
 
 import android.graphics.Color
 import android.graphics.Point
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import com.example.mygame.model.GameView
 import kotlinx.coroutines.CoroutineScope
@@ -48,13 +48,14 @@ class GameFragment : Fragment() {
         fireButton.layoutParams = b1
         game.addView(gameView)
         game.addView(gameButtons)
+        game.background = ResourcesCompat.getDrawable(resources, R.drawable.backgroud, null)
         return game
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         CoroutineScope(Dispatchers.Default).launch {
             gameView.startGame().await()
             withContext(Dispatchers.Main) {
-                val intent = GameOverFragment(gameView.score)
+                val intent = GameOverFragment(gameView.score, gameView.isWin)
              parentFragmentManager.beginTransaction().replace(R.id.fragmentContainer, intent).commit()
             }
         }
